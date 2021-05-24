@@ -44,8 +44,7 @@ int main(int argc, char **argv) {
     else if(!bg)
         printf("%*.*s\033[%dm%s\033[0m\n", pad, pad, " ", fg, line);
     else
-        printf("%*.*s\033[%d;%dm%s\033[0m\n", pad, pad, " ", fg,
-               bg, line);
+        printf("%*.*s\033[%d;%dm%s\033[0m\n", pad, pad, " ", fg, bg, line);
     free(line);
     return 0;
 }
