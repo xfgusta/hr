@@ -101,5 +101,4 @@ void usage() {
            "  -b <color>  set background color\n\n"
            "Colors:\n"
            "  black, red, green, yellow, blue, magenta, cyan, white\n");
-    exit(0);
 }
