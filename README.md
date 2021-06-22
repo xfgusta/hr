@@ -1,20 +1,25 @@
 # hr
 
-hr prints a horizontal rule, like the `hr` tag in HTML, in your terminal
+hr prints a horizontal rule, like the hr tag in HTML, in your terminal
 
 ## Installation
 
-### Build from source
-
-Dependencies:
+#### Requirements
 
 + make
 + gcc (and a POSIX environment)
 
+Build and install with:
+
 ```
-$ make
-# make install
+git clone https://github.com/xfgusta/hr.git
+cd hr
+make
 ```
+
+And then `make install` as root.
+
+To uninstall, run `make uninstall` as root as well.
 
 ## Example
 
@@ -56,4 +61,4 @@ Use `hr -h` for more options.
 
 The MIT License (MIT)
 
-hr Copyright (c) 2021 Gustavo Costa
+Copyright (c) 2021 Gustavo Costa
