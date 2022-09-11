@@ -1,17 +1,22 @@
-PROG = hr
-CC = gcc
-CFLAGS = -O3 -Wall -Wextra -pedantic -std=c99
-SRC = main.c
+CC ?= gcc
+CFLAGS ?= -Wall -Wextra -Werror -pedantic -std=c11 -O2
 
-${PROG}: ${SRC}
-	${CC} ${CFLAGS} ${SRC} -o ${PROG}
+PREFIX ?= /usr/local
+BINDIR ?= $(PREFIX)/bin
 
-install:
-	mkdir -p $(DESTDIR)/usr/bin
-	install -m 0755 ${PROG} $(DESTDIR)/usr/bin/${PROG}
+INSTALL ?= install -p -m 0755
+
+hr: hr.c
+	$(CC) $(CFLAGS) hr.c $(LDFLAGS) -o hr
+
+install: hr
+	mkdir -p $(DESTDIR)$(BINDIR)
+	$(INSTALL) hr $(DESTDIR)$(BINDIR)
 
 uninstall:
-	rm -f $(DESTDIR)/usr/bin/${PROG}
+	rm -f $(DESTDIR)$(BINDIR)/hr
 
 clean:
-	rm -f ${PROG}
+	rm -f hr
+
+.PHONY: install uninstall clean
