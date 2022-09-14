@@ -1,103 +1,136 @@
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
-#include <string.h>
-#include <getopt.h>
-#include <unistd.h>
 #include <stdlib.h>
-
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/ioctl.h>
 
-#define eq(s) (!strcmp(optarg, s))
-#define die(s) {perror(s); exit(1);}
+#define VERSION "0.1.0"
 
-unsigned short getwsize();
-unsigned short ansicolor(char *);
-char *repeat(char, unsigned short);
-void usage();
+#define print_error(...) fprintf(stderr, "hr: " __VA_ARGS__);
 
-int main(int argc, char **argv) {
-    char chr = '-';
-    unsigned short maxw = getwsize(), width = maxw, fg = 0, bg = 0;
-    int c;
-    while((c = getopt(argc, argv, "hc:s:f:b:")) != -1) {
-        switch(c) {
-            case 'h':
-                usage();
-                return 0;
-            case 'c':
-                chr = *optarg;
-                break;
-            case 's':
-                width = atoi(optarg);
-                break;
-            case 'f':
-                fg = 30 + ansicolor(optarg);
-                break;
-            case 'b':
-                bg = 40 + ansicolor(optarg);
-                break;
-        }
-    }
-    char *line = repeat(chr, width);
-    int pad = (width >= maxw) ? 0 : (maxw - width)/2;
-    if(!fg && !bg)
-        printf("%*.*s%s\n", pad, pad, " ", line);
-    else if(!bg)
-        printf("%*.*s\033[%dm%s\033[0m\n", pad, pad, " ", fg, line);
-    else
-        printf("%*.*s\033[%d;%dm%s\033[0m\n", pad, pad, " ", fg, bg, line);
-    free(line);
-    return 0;
-}
-
-unsigned short getwsize() {
+// get terminal width size
+int get_term_cols() {
+    char *columns_env;
     struct winsize ws;
-    if(ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == -1)
-        die("ioctl");
+
+    columns_env = getenv("COLUMNS");
+    if(columns_env)
+        return atoi(columns_env);
+
+    if(ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
+        return -1;
+
     return ws.ws_col;
 }
 
-unsigned short ansicolor(char *optarg) {
-    if(eq("black"))
-        return 0;
-    else if(eq("red"))
-        return 1;
-    else if(eq("green"))
-        return 2;
-    else if(eq("yellow"))
-        return 3;
-    else if(eq("blue"))
-        return 4;
-    else if(eq("magenta"))
-        return 5;
-    else if(eq("cyan"))
-        return 6;
-    else if(eq("white"))
-        return 7;
-    else {
-        fprintf(stderr, "Unknown color %s\n", optarg);
-        exit(1);
-    }
-}
+// return a string with the repeated character
+char *repeat_char(char c, int count) {
+    char *line = NULL;
 
-char *repeat(char c, unsigned short n) {
-    char *line = malloc(n + 1);
+    line = malloc(count + 1);
     if(!line)
-        die("malloc");
-    for(unsigned short i = 0; i != n; i++)
+        return NULL;
+
+    for(int i = 0; i != count; i++)
         line[i] = c;
-    line[n] = 0;
+
+    line[count] = '\0';
+
     return line;
 }
 
-void usage() {
-    printf("Usage: hr [-h] [-c char] [-s n] [-f color] [-b color]\n\n"
-           "A horizontal rule for terminal\n\n"
-           "Options:\n"
-           "  -h          display this message and exit\n"
-           "  -c <char>   set character\n"
-           "  -s <n>      set size\n"
-           "  -f <color>  set foreground color\n"
-           "  -b <color>  set background color\n\n"
-           "Colors:\n"
-           "  black, red, green, yellow, blue, magenta, cyan, white\n");
+void display_help() {
+    printf(
+        "Usage: hr [-h] [-v] [-c COUNT] [CHAR]\n\n"
+        "Options:\n"
+        "  -h          display this help and exit\n"
+        "  -v          output version information and exit\n"
+        "  -c [COUNT]  repeat CHAR COUNT times\n"
+        "  -l          left alignment\n"
+        "  -r          right alignment\n\n"
+        "Report bugs to <https://github.com/xfgusta/hr/issues>\n"
+    );
+    exit(EXIT_SUCCESS);
+}
+
+void display_version() {
+    printf("hr version %s\n", VERSION);
+    exit(EXIT_SUCCESS);
+}
+
+int main(int argc, char **argv) {
+    int opt;
+    char chr = '-';
+    int count = 0;
+    int alignment = 0;
+    int term_cols;
+    char *line;
+
+    while((opt = getopt(argc, argv, "hvc:lr")) != -1) {
+        switch(opt) {
+            case 'h':
+                display_help();
+                break;
+            case 'v':
+                display_version();
+                break;
+            case 'c':
+                count = atoi(optarg);
+                if(count <= 0) {
+                    print_error("COUNT must be greater than 0\n");
+                    exit(EXIT_FAILURE);
+                }
+                break;
+            case 'l':
+                alignment = -1;
+                break;
+            case 'r':
+                alignment = 1;
+                break;
+        }
+    }
+
+    // skip to the non-option arguments
+    argc -= optind;
+    argv += optind;
+
+    if(argc >= 1)
+        chr = **argv;
+
+    term_cols = get_term_cols();
+    if(term_cols <= 0)
+        term_cols = 80;
+
+    // if none of the options were given
+    if(alignment == 0 && count == 0)
+        count = term_cols;
+
+    // default value if left/right alignment options was given
+    if(count == 0)
+        count = 80;
+
+    line = repeat_char(chr, count);
+    if(!line) {
+        print_error("could not repeat \"%c\" %d times\n", chr, count);
+        exit(EXIT_FAILURE);
+    }
+
+    switch(alignment) {
+        // left
+        case -1:
+            puts(line);
+            break;
+        // center
+        case 0:
+            printf("%*s%s\n", (term_cols - count) / 2, "", line);
+            break;
+        // right
+        case 1:
+            printf("%*s%s\n", term_cols - count, "", line);
+            break;
+    }
+
+    free(line);
+    exit(EXIT_SUCCESS);
 }
