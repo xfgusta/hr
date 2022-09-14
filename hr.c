@@ -42,13 +42,13 @@ char *repeat_char(char c, int count) {
 
 void display_help() {
     printf(
-        "Usage: hr [-h] [-v] [-c COUNT] [CHAR]\n\n"
+        "Usage: hr [-h] [-v] [-n COUNT] [CHAR]\n\n"
         "Options:\n"
-        "  -h          display this help and exit\n"
-        "  -v          output version information and exit\n"
-        "  -c [COUNT]  repeat CHAR COUNT times\n"
-        "  -l          left alignment\n"
-        "  -r          right alignment\n\n"
+        "  -h        display this help and exit\n"
+        "  -v        output version information and exit\n"
+        "  -n COUNT  repeat CHAR COUNT times\n"
+        "  -l        left alignment\n"
+        "  -r        right alignment\n\n"
         "Report bugs to <https://github.com/xfgusta/hr/issues>\n"
     );
     exit(EXIT_SUCCESS);
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     int term_cols;
     char *line;
 
-    while((opt = getopt(argc, argv, "hvc:lr")) != -1) {
+    while((opt = getopt(argc, argv, "hvn:lr")) != -1) {
         switch(opt) {
             case 'h':
                 display_help();
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
             case 'v':
                 display_version();
                 break;
-            case 'c':
+            case 'n':
                 count = atoi(optarg);
                 if(count <= 0) {
                     print_error("COUNT must be greater than 0\n");
