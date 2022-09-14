@@ -1,64 +1,39 @@
 # hr
 
-hr prints a horizontal rule, like the hr tag in HTML, in your terminal
-
-## Installation
-
-#### Requirements
-
-+ make
-+ gcc (and a POSIX environment)
-
-Build and install with:
-
-```
-git clone https://github.com/xfgusta/hr.git
-cd hr
-make
-```
-
-And then `make install` as root.
-
-To uninstall, run `make uninstall` as root as well.
+A tool that prints a horizontal rule, like the HTML `<hr>` tag, to your terminal. **hr** is particularly useful for distinguishing the output when running multiple commands.
 
 ## Example
 
-```
-$ pwd; ls -l; tree
-/home/gusta/Desktop/hr
-total 12
--rw-r--r--. 1 gusta gusta 2767 mai 23 23:30 main.c
--rw-r--r--. 1 gusta gusta  301 mai 23 23:17 makefile
--rw-r--r--. 1 gusta gusta  792 mai 23 23:31 README.md
+```text
+$ pwd; hr; tree -v
+/home/xfgusta/Desktop/hr
+--------------------------------------------------------------------------------
 .
-├── main.c
-├── makefile
-└── README.md
+├── LICENSE
+├── README.md
+├── hr.1
+├── hr.c
+└── makefile
 
-0 directories, 3 files
+0 directories, 5 files
 ```
 
-```
-$ pwd; hr; ls -l; hr; tree
-/home/gusta/Desktop/hr
------------------------------------------------------
-total 12
--rw-r--r--. 1 gusta gusta 2767 mai 23 23:30 main.c
--rw-r--r--. 1 gusta gusta  301 mai 23 23:17 makefile
--rw-r--r--. 1 gusta gusta 1063 mai 23 23:32 README.md
------------------------------------------------------
-.
-├── main.c
-├── makefile
-└── README.md
+## Installation
 
-0 directories, 3 files
+### From source
+
+The install directory defaults to `/usr/local`:
+
+```text
+make install
 ```
 
-Use `hr -h` for more options.
+You can install **hr** in a different directory using the `PREFIX` variable:
+
+```text
+make PREFIX=/usr install
+```
 
 ## License
 
-The MIT License (MIT)
-
-Copyright (c) 2021 Gustavo Costa
+Copyright (c) 2022 Gustavo Costa. Distributed under the MIT license.
